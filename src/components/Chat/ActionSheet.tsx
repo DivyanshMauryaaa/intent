@@ -57,7 +57,7 @@ export function ActionSheet({ open, onOpenChange, identifier, initialData, title
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="overflow-y-auto sm:max-w-md w-full">
+            <SheetContent className="overflow-y-auto  w-[40%]">
                 <SheetHeader className="mb-6">
                     <SheetTitle>{title}</SheetTitle>
                     <SheetDescription>

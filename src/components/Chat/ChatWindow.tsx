@@ -71,34 +71,41 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                 }),
             });
 
-            if (!response.body) return;
+            if (!response.ok) throw new Error("Failed to fetch response");
 
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let aiContent = "";
+            const aiContent = await response.text();
 
-            // Add placeholder/streaming AI message
+            // Add placeholder AI message
             setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
+            // Animate typing (approx 0.5s total duration)
+            const duration = 500; // ms
+            const stepTime = 10; // ms per update
+            const totalSteps = duration / stepTime;
+            const charsPerStep = Math.ceil(aiContent.length / totalSteps);
 
-                const chunk = decoder.decode(value, { stream: true });
-                aiContent += chunk;
+            let currentIndex = 0;
+            const interval = setInterval(() => {
+                currentIndex += charsPerStep;
+                if (currentIndex >= aiContent.length) {
+                    currentIndex = aiContent.length;
+                    clearInterval(interval);
+                    setStreaming(false);
+                }
 
+                const currentText = aiContent.slice(0, currentIndex);
                 setMessages((prev) => {
                     const newMsgs = [...prev];
                     const lastMsg = newMsgs[newMsgs.length - 1];
                     if (lastMsg.role === "assistant") {
-                        lastMsg.content = aiContent;
+                        lastMsg.content = currentText;
                     }
                     return newMsgs;
                 });
-            }
+            }, stepTime);
+
         } catch (error) {
             console.error("Failed to send message", error);
-        } finally {
             setStreaming(false);
         }
     };
@@ -114,7 +121,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
 
     return (
         <div className="flex flex-col h-full w-full relative">
-            <div className="flex-1 overflow-y-auto p-4 pb-32 w-[60%] m-auto" ref={scrollRef}>
+            <div className="flex-1 overflow-y-auto p-4 pb-32 w-[60%] m-auto no-scrollbar" ref={scrollRef}>
                 {messages.map((m, index) => (
                     <MessageBubble key={index} role={m.role as any} content={m.content} />
                 ))}
@@ -134,7 +141,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Type your message..."
-                            className="resize-none min-h-[50px] max-h-[200px] w-full py-4 pr-16 bg-background shadow-lg rounded-2xl border-input focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="resize-none min-h-[50px] bg-gray-50 dark:bg-gray-950 max-h-[200px] w-full py-4 pr-16 bg-background shadow-lg rounded-2xl border-input focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();

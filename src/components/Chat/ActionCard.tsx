@@ -23,20 +23,17 @@ export function ActionCard({ identifier, title, content }: ActionCardProps) {
     return (
         <div className="w-full my-4">
             <Card className="w-full max-w-sm border-2 border-primary/20 bg-card overflow-hidden">
-                <CardHeader className="bg-muted/30 pb-4">
+                <CardHeader className="">
                     <CardTitle className="text-lg flex items-center gap-2">
-                        <div className="p-2 rounded-full bg-primary/10 text-primary">
-                            <Play className="h-4 w-4" />
-                        </div>
                         {title}
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 text-sm text-muted-foreground">
-                    <p>Ready to configure and execute.</p>
+                <CardContent className="text-sm text-muted-foreground">
+                    <p>Configure the action and proceed.</p>
                 </CardContent>
-                <CardFooter className="bg-muted/30 pt-4">
+                <CardFooter className="">
                     <Button onClick={() => setOpen(true)} className="w-full cursor-pointer">
-                        Setup Action
+                        Complete Action
                     </Button>
                 </CardFooter>
             </Card>
