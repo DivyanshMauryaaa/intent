@@ -1,0 +1,158 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { ArrowUp } from "lucide-react";
+import { MessageBubble } from "./MessageBubble";
+
+interface ChatWindowProps {
+    chatId: string;
+}
+
+interface Message {
+    role: "user" | "assistant";
+    content: string;
+}
+
+export function ChatWindow({ chatId }: ChatWindowProps) {
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [input, setInput] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [streaming, setStreaming] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Fetch messages when chatId changes
+    useEffect(() => {
+        setLoading(true);
+        fetch(`/api/chats/${chatId}`)
+            .then((res) => {
+                if (res.ok) return res.json();
+                return [];
+            })
+            .then((data) => {
+                setMessages(data.map((m: any) => ({ role: m.role, content: m.content })));
+                setLoading(false);
+
+                // Check for pending message from Empty State
+                const pending = localStorage.getItem("pendingMessage");
+                if (pending) {
+                    localStorage.removeItem("pendingMessage");
+                    sendMessage(pending, data); // Pass current data effectively as history
+                }
+            });
+    }, [chatId]);
+
+    // Auto-scroll logic
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages, streaming]);
+
+    const sendMessage = async (msgContent: string, currentHistory: Message[] = messages) => {
+        if (!msgContent.trim()) return;
+
+        const newMessage: Message = { role: "user", content: msgContent };
+        const updatedMessages = [...currentHistory.map(m => ({ ...m })), newMessage];
+
+        // Optimistic Update
+        setMessages(updatedMessages);
+        setInput("");
+        setStreaming(true);
+
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    messages: updatedMessages,
+                    chatId,
+                }),
+            });
+
+            if (!response.body) return;
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let aiContent = "";
+
+            // Add placeholder/streaming AI message
+            setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                aiContent += chunk;
+
+                setMessages((prev) => {
+                    const newMsgs = [...prev];
+                    const lastMsg = newMsgs[newMsgs.length - 1];
+                    if (lastMsg.role === "assistant") {
+                        lastMsg.content = aiContent;
+                    }
+                    return newMsgs;
+                });
+            }
+        } catch (error) {
+            console.error("Failed to send message", error);
+        } finally {
+            setStreaming(false);
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        sendMessage(input);
+    };
+
+    if (loading) {
+        return <div className="flex-1 flex items-center justify-center h-full">Loading chat...</div>;
+    }
+
+    return (
+        <div className="flex flex-col h-full w-full relative">
+            <div className="flex-1 overflow-y-auto p-4 pb-32 w-[60%] m-auto" ref={scrollRef}>
+                {messages.map((m, index) => (
+                    <MessageBubble key={index} role={m.role as any} content={m.content} />
+                ))}
+                {streaming && messages.length > 0 && messages[messages.length - 1].role === "user" && (
+                    // Fallback if loading state isn't perfectly synced (rare)
+                    // Fallback if loading state isn't perfectly synced (rare)
+                    <div className="flex w-full mb-4 justify-start">
+                        <div className="bg-muted text-muted-foreground rounded-2xl rounded-bl-none px-4 py-2 text-sm italic">Thinking...</div>
+                    </div>
+                )}
+            </div>
+
+            <div className="absolute bottom-6 w-full px-4 flex justify-center">
+                <div className="w-full max-w-3xl relative">
+                    <form onSubmit={handleSubmit} className="flex gap-2">
+                        <Textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Type your message..."
+                            className="resize-none min-h-[50px] max-h-[200px] w-full py-4 pr-16 bg-background shadow-lg rounded-2xl border-input focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    sendMessage(input);
+                                }
+                            }}
+                        />
+                        <Button
+                            type="submit"
+                            size="icon"
+                            className="absolute right-2 bottom-3 rounded-xl h-10 w-10"
+                            disabled={!input.trim() || streaming}
+                        >
+                            <ArrowUp className="h-5 w-5" />
+                        </Button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}
