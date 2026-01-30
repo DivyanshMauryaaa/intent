@@ -22,20 +22,12 @@ export function ActionCard({ identifier, title, content }: ActionCardProps) {
 
     return (
         <div className="w-full my-4">
-            <Card className="w-full max-w-sm border-2 border-primary/20 bg-card overflow-hidden">
+            <Card className="w-full hover:bg-primary/5 bg-card overflow-hidden cursor-pointer" onClick={() => setOpen(true)}>
                 <CardHeader className="">
-                    <CardTitle className="text-lg flex items-center gap-2">
+                    <CardTitle className="text-xl flex items-center gap-2">
                         {title}
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="text-sm text-muted-foreground">
-                    <p>Configure the action and proceed.</p>
-                </CardContent>
-                <CardFooter className="">
-                    <Button onClick={() => setOpen(true)} className="w-full cursor-pointer">
-                        Complete Action
-                    </Button>
-                </CardFooter>
             </Card>
 
             <ActionSheet

@@ -14,7 +14,7 @@ export function MessageBubble({ role, content }: MessageBubbleProps) {
 
     // Helper to parse content for artifacts
     const renderContent = (text: string) => {
-        if (isUser) return <p>{text}</p>;
+        if (isUser) return <div className="prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown>{text}</ReactMarkdown></div>;
 
         const parts = [];
         const regex = /<artifact\s+type="([^"]+)"(?:\s+identifier="([^"]+)")?\s+title="([^"]+)">([\s\S]*?)<\/artifact>/g;
@@ -85,11 +85,10 @@ export function MessageBubble({ role, content }: MessageBubbleProps) {
         >
             <div
                 className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-2 text-sm py-4",
+                    "rounded-2xl px-4 py-2 text-sm py-4",
                     isUser
-                        ? "bg-primary text-primary-foreground rounded-br-none"
-                        : "bg-muted text-foreground rounded-bl-none",
-                    // Allow artifacts to expand slightly more if needed, but keep bubble constrained
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-foreground",
                     !isUser && "w-full"
                 )}
             >

@@ -15,11 +15,10 @@ interface Chat {
 }
 
 import { ModeToggle } from "@/components/mode-toggle";
-
-// ... imports remain the same
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import SettingsPage from "@/app/settings/page";
 
 export function Sidebar() {
-    // ... state and effects remain the same
     const [chats, setChats] = useState<Chat[]>([]);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -76,7 +75,22 @@ export function Sidebar() {
                 <div className="space-y-2">
                     <Button className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer" variant={'ghost'} onClick={() => navigateTo('/integrations')}><KeyIcon className="mr-2 h-4 w-4" /> Integrations</Button>
                     <Button className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer" variant={'ghost'} onClick={() => navigateTo('/automations')}><WorkflowIcon className="mr-2 h-4 w-4" /> Automations</Button>
-                    <Button className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer" variant={'ghost'} onClick={() => navigateTo('/settings')}><Settings className="mr-2 h-4 w-4" /> Settings</Button>
+
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer" variant={'ghost'}><Settings className="mr-2 h-4 w-4" /> Settings</Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-4xl">
+                            <DialogHeader>
+                                <DialogTitle>Settings</DialogTitle>
+                                <DialogDescription>
+                                    Make changes to your settings here. Click save when you're done.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <SettingsPage isPage={false} />
+                        </DialogContent>
+                    </Dialog>
+
                     <Button className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer" variant={'ghost'} onClick={() => navigateTo('/workspace')}><Folder className="mr-2 h-4 w-4" /> Workspace</Button>
                     <Button className="w-full justify-start hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer" variant={'ghost'} onClick={() => navigateTo('/')}><Plus className="mr-2 h-4 w-4" /> New Chat</Button>
                 </div>

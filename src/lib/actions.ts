@@ -632,6 +632,29 @@ const actions: Action[] = [
             },
             required: ['imageUrl']
         }
+    },
+    {
+        slug: 'run_workflow',
+        description: 'Run a workflow',
+        parameters: {
+            type: 'object',
+            properties: {
+                //Help me make this
+            },
+            required: ['nodes', 'edges']
+        }
+    },
+    {
+        slug: 'post_x',
+        description: 'Post a tweet to X',
+        parameters: {
+            type: 'object',
+            properties: {
+                message: { type: 'string' },
+                link: { type: 'string' }
+            },
+            required: ['message']
+        }
     }
 ];
 

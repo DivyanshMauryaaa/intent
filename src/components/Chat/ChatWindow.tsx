@@ -141,7 +141,7 @@ export function ChatWindow({ chatId }: ChatWindowProps) {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="Type your message..."
-                            className="resize-none min-h-[50px] bg-gray-50 dark:bg-gray-950 max-h-[200px] w-full py-4 pr-16 bg-background shadow-lg rounded-2xl border-input focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                            className="resize-none min-h-[60px] bg-gray-50 dark:bg-gray-950 max-h-[200px] w-full py-4 pr-16 bg-background shadow-lg rounded-2xl border-input focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
