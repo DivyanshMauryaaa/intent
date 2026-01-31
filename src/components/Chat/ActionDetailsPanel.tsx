@@ -15,6 +15,17 @@ interface ActionDetailsPanelProps {
     mode?: "sidebar" | "overlay";
 }
 
+import { WorkflowEditorWrapper } from "./WorkflowEditorWrapper";
+
+interface ActionDetailsPanelProps {
+    identifier: string;
+    initialData: Record<string, any>;
+    onChange: (data: Record<string, any>) => void;
+    onExecute?: (data: Record<string, any>) => Promise<void>;
+    onExpand?: () => void; // For opening the overlay
+    mode?: "sidebar" | "overlay";
+}
+
 export function ActionDetailsPanel({
     identifier,
     initialData,
@@ -54,6 +65,58 @@ export function ActionDetailsPanel({
 
     if (!actionDef) return <div className="p-4">Action not found</div>;
 
+    // Special handling for Workflow Editor
+    if (identifier === 'run_workflow') {
+        return (
+            <div className="h-full flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                    <div>
+                        <h3 className="text-lg font-semibold">{actionDef.slug}</h3>
+                        <p className="text-sm text-muted-foreground">{actionDef.description}</p>
+                    </div>
+                </div>
+                <div className="flex-1 overflow-hidden min-h-[400px]">
+                    <WorkflowEditorWrapper
+                        initialNodes={formData.nodes || []}
+                        initialEdges={formData.edges || []}
+                        onChange={(data) => {
+                            // Debounce or direct update? Direct for now.
+                            // We need to merge this back into formData
+                            // But we shouldn't trigger a full re-render of this wrapper if we can avoid it?
+                            // Wrapper has its own state. passing initialNodes only affects mount.
+                            // Updating formData here is for the Execute button at the bottom.
+                            setFormData(prev => ({ ...prev, nodes: data.nodes, edges: data.edges }));
+                            onChange({ ...formData, nodes: data.nodes, edges: data.edges });
+                        }}
+                    />
+                </div>
+                {onExecute && (
+                    <div className="mt-4 pt-4 border-t">
+                        <Button
+                            onClick={handleExecuteClick}
+                            disabled={executing || success}
+                            className={`w-full py-6 text-lg transition-all ${success ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                        >
+                            {executing ? (
+                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            ) : success ? (
+                                <>
+                                    <Check className="mr-2 h-5 w-5" />
+                                    Executed!
+                                </>
+                            ) : (
+                                <>
+                                    <Play className="mr-2 h-5 w-5" />
+                                    Run Workflow
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     const properties = actionDef.parameters.properties || {};
 
     return (
@@ -80,7 +143,7 @@ export function ActionDetailsPanel({
                         return (
                             <div key={key} className="space-y-2">
                                 <Label htmlFor={key} className="font-medium">{label}</Label>
-                                <Input
+                                <Textarea
                                     id={key}
                                     value={value}
                                     onChange={(e) => handleChange(key, e.target.value.split(',').map((s: string) => s.trim()))}
@@ -105,13 +168,12 @@ export function ActionDetailsPanel({
                                     className="min-h-[100px] rounded-lg resize-y"
                                 />
                             ) : (
-                                <Input
+                                <Textarea
                                     id={key}
-                                    type={key.toLowerCase().includes('password') ? 'password' : 'text'}
                                     value={formData[key] || ''}
                                     onChange={(e) => handleChange(key, e.target.value)}
                                     placeholder={schema.description}
-                                    className="rounded-lg"
+                                    className="min-h-[100px] rounded-lg resize-y"
                                 />
                             )}
                         </div>

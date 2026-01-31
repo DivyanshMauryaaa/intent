@@ -7,9 +7,10 @@ import { ArtifactRenderer } from "./ArtifactRenderer";
 interface MessageBubbleProps {
     role: "user" | "assistant" | "system" | "data";
     content: string;
+    onActionClick?: (data: { identifier: string; title: string; initialData: Record<string, any> }) => void;
 }
 
-export function MessageBubble({ role, content }: MessageBubbleProps) {
+export function MessageBubble({ role, content, onActionClick }: MessageBubbleProps) {
     const isUser = role === "user";
 
     // Helper to parse content for artifacts
@@ -70,6 +71,7 @@ export function MessageBubble({ role, content }: MessageBubbleProps) {
                         title={part.title!}
                         content={part.content!}
                         identifier={part.identifier}
+                        onActionClick={onActionClick}
                     />
                 );
             }

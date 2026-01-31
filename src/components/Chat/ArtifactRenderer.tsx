@@ -10,13 +10,14 @@ interface ArtifactRendererProps {
     title: string;
     content: string;
     identifier?: string;
+    onActionClick?: (data: { identifier: string; title: string; initialData: Record<string, any> }) => void;
 }
 
-export function ArtifactRenderer({ type, title, content, identifier }: ArtifactRendererProps) {
+export function ArtifactRenderer({ type, title, content, identifier, onActionClick }: ArtifactRendererProps) {
     const [copied, setCopied] = useState(false);
 
     if (type === "action" && identifier) {
-        return <ActionCard identifier={identifier} title={title} content={content} />;
+        return <ActionCard identifier={identifier} title={title} content={content} onSelect={onActionClick} />;
     }
 
     const handleCopy = () => {

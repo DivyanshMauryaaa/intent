@@ -516,6 +516,19 @@ const actions: Action[] = [
         }
     },
 
+    {
+        slug: 'ai_generate',
+        description: 'Generate content using AI',
+        parameters: {
+            type: 'object',
+            properties: {
+                prompt: { type: 'string', description: 'Prompt for AI generation' },
+                // outputType: { type: 'string', description: 'Output type (e.g., text, image, code)' },
+            },
+            required: ['prompt']
+        }
+    },
+
     // --- Atlassian: Trello ---
     {
         slug: 'trello_create_board',
@@ -639,7 +652,49 @@ const actions: Action[] = [
         parameters: {
             type: 'object',
             properties: {
-                //Help me make this
+                nodes: {
+                    type: 'array',
+                    description: 'List of nodes in the workflow',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            type: { type: 'string', description: 'Node type (default: "actionNode")' },
+                            position: {
+                                type: 'object',
+                                properties: {
+                                    x: { type: 'number' },
+                                    y: { type: 'number' }
+                                }
+                            },
+                            data: {
+                                type: 'object',
+                                properties: {
+                                    slug: { type: 'string', description: 'Action slug (e.g. gmail_send)' },
+                                    title: { type: 'string' },
+                                    description: { type: 'string' },
+                                    status: { type: 'string', enum: ['idle', 'running', 'success', 'error'] },
+                                    // Allow other properties for action params
+                                },
+                                required: ['slug', 'title']
+                            }
+                        },
+                        required: ['id', 'data', 'position']
+                    }
+                },
+                edges: {
+                    type: 'array',
+                    description: 'List of connections between nodes',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            source: { type: 'string' },
+                            target: { type: 'string' }
+                        },
+                        required: ['id', 'source', 'target']
+                    }
+                }
             },
             required: ['nodes', 'edges']
         }

@@ -31,7 +31,7 @@ export function ActionSheet({ open, onOpenChange, identifier, initialData, title
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
-            <SheetContent className="w-[40%] sm:max-w-md overflow-y-auto">
+            <SheetContent className="w-[60%] sm:max-w-md overflow-y-auto">
                 <ActionDetailsPanel
                     identifier={identifier}
                     initialData={currentData}
