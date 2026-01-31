@@ -710,6 +710,276 @@ const actions: Action[] = [
             },
             required: ['message']
         }
+    },
+
+    // --- LinkedIn ---
+    {
+        slug: 'linkedin_post_feed',
+        description: 'Post a text or article to LinkedIn feed',
+        parameters: {
+            type: 'object',
+            properties: {
+                text: { type: 'string', description: 'Post content' },
+                articleUrl: { type: 'string', description: 'URL to share (optional)' },
+                visibility: { type: 'string', enum: ['PUBLIC', 'CONNECTIONS'], description: 'Post visibility' }
+            },
+            required: ['text']
+        }
+    },
+
+    // --- YouTube ---
+    {
+        slug: 'youtube_upload_video',
+        description: 'Upload a video to YouTube',
+        parameters: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                description: { type: 'string' },
+                videoUrl: { type: 'string', description: 'Storage URL of the video file' },
+                privacyStatus: { type: 'string', enum: ['public', 'private', 'unlisted'] },
+                tags: { type: 'array', items: { type: 'string' } }
+            },
+            required: ['title', 'videoUrl']
+        }
+    },
+    {
+        slug: 'youtube_get_channel_stats',
+        description: 'Get statistics for a YouTube channel',
+        parameters: {
+            type: 'object',
+            properties: {
+                channelId: { type: 'string', description: 'Channel ID (optional, defaults to auth user)' }
+            }
+        }
+    },
+
+    // --- TikTok ---
+    {
+        slug: 'tiktok_post_video',
+        description: 'Upload a video to TikTok',
+        parameters: {
+            type: 'object',
+            properties: {
+                videoUrl: { type: 'string', description: 'Video file URL' },
+                caption: { type: 'string' },
+                privacy: { type: 'string', enum: ['PUBLIC', 'FRIENDS', 'PRIVATE'] }
+            },
+            required: ['videoUrl']
+        }
+    },
+
+    // --- HubSpot ---
+    {
+        slug: 'hubspot_create_contact',
+        description: 'Create a new contact in HubSpot',
+        parameters: {
+            type: 'object',
+            properties: {
+                email: { type: 'string' },
+                firstname: { type: 'string' },
+                lastname: { type: 'string' },
+                phone: { type: 'string' },
+                company: { type: 'string' }
+            },
+            required: ['email']
+        }
+    },
+    {
+        slug: 'hubspot_create_deal',
+        description: 'Create a new deal in HubSpot',
+        parameters: {
+            type: 'object',
+            properties: {
+                dealname: { type: 'string' },
+                amount: { type: 'number' },
+                pipeline: { type: 'string' },
+                dealstage: { type: 'string' }
+            },
+            required: ['dealname']
+        }
+    },
+
+    // --- Mailchimp ---
+    {
+        slug: 'mailchimp_add_subscriber',
+        description: 'Add a new subscriber to a Mailchimp audience',
+        parameters: {
+            type: 'object',
+            properties: {
+                listId: { type: 'string', description: 'Audience/List ID' },
+                email: { type: 'string' },
+                firstName: { type: 'string' },
+                lastName: { type: 'string' },
+                status: { type: 'string', enum: ['subscribed', 'pending'] }
+            },
+            required: ['listId', 'email']
+        }
+    },
+    {
+        slug: 'mailchimp_send_campaign',
+        description: 'Create and send a campaign',
+        parameters: {
+            type: 'object',
+            properties: {
+                listId: { type: 'string' },
+                subject: { type: 'string' },
+                fromName: { type: 'string' },
+                replyTo: { type: 'string' },
+                htmlContent: { type: 'string' }
+            },
+            required: ['listId', 'subject', 'htmlContent']
+        }
+    },
+
+    // --- Salesforce ---
+    {
+        slug: 'salesforce_create_lead',
+        description: 'Create a new Lead in Salesforce',
+        parameters: {
+            type: 'object',
+            properties: {
+                lastName: { type: 'string' },
+                company: { type: 'string' },
+                email: { type: 'string' },
+                firstName: { type: 'string' }
+            },
+            required: ['lastName', 'company']
+        }
+    },
+
+    // --- Shopify ---
+    {
+        slug: 'shopify_get_products',
+        description: 'List products from Shopify store',
+        parameters: {
+            type: 'object',
+            properties: {
+                limit: { type: 'number' },
+                ids: { type: 'string', description: 'Comma separated IDs' }
+            }
+        }
+    },
+    {
+        slug: 'shopify_create_order',
+        description: 'Create a new order in Shopify',
+        parameters: {
+            type: 'object',
+            properties: {
+                line_items: { type: 'array', items: { type: 'object' } },
+                customer: { type: 'object' }
+            },
+            required: ['line_items']
+        }
+    },
+
+    // --- Stripe ---
+    {
+        slug: 'stripe_create_invoice',
+        description: 'Create an invoice in Stripe',
+        parameters: {
+            type: 'object',
+            properties: {
+                customerId: { type: 'string' },
+                amount: { type: 'number' },
+                currency: { type: 'string', description: 'usd, eur, etc.' },
+                description: { type: 'string' }
+            },
+            required: ['customerId']
+        }
+    },
+
+    // --- Discord ---
+    {
+        slug: 'discord_send_message',
+        description: 'Send a message to a Discord channel',
+        parameters: {
+            type: 'object',
+            properties: {
+                channelId: { type: 'string' },
+                content: { type: 'string' },
+                embeds: { type: 'array', items: { type: 'object' } }
+            },
+            required: ['channelId', 'content']
+        }
+    },
+
+    // --- Zoom ---
+    {
+        slug: 'zoom_create_meeting',
+        description: 'Create a scheduled Zoom meeting',
+        parameters: {
+            type: 'object',
+            properties: {
+                topic: { type: 'string' },
+                startTime: { type: 'string', description: 'ISO format' },
+                duration: { type: 'number', description: 'Minutes' },
+                agenda: { type: 'string' }
+            },
+            required: ['topic', 'startTime']
+        }
+    },
+
+    // --- Medium ---
+    {
+        slug: 'medium_create_post',
+        description: 'Create a post on Medium',
+        parameters: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                contentFormat: { type: 'string', enum: ['html', 'markdown'] },
+                content: { type: 'string' },
+                tags: { type: 'array', items: { type: 'string' } },
+                publishStatus: { type: 'string', enum: ['public', 'draft', 'unlisted'] }
+            },
+            required: ['title', 'content', 'contentFormat']
+        }
+    },
+
+    // --- WordPress ---
+    {
+        slug: 'wordpress_create_post',
+        description: 'Create a new post on WordPress site',
+        parameters: {
+            type: 'object',
+            properties: {
+                title: { type: 'string' },
+                content: { type: 'string' },
+                status: { type: 'string', enum: ['publish', 'future', 'draft', 'pending', 'private'] },
+                categories: { type: 'array', items: { type: 'number' }, description: 'Category IDs' }
+            },
+            required: ['title', 'content']
+        }
+    },
+
+    // --- Airtable ---
+    {
+        slug: 'airtable_create_record',
+        description: 'Create a record in Airtable',
+        parameters: {
+            type: 'object',
+            properties: {
+                baseId: { type: 'string' },
+                tableIdOrName: { type: 'string' },
+                fields: { type: 'object', description: 'Key-value pairs of field data' }
+            },
+            required: ['baseId', 'tableIdOrName', 'fields']
+        }
+    },
+    {
+        slug: 'airtable_list_records',
+        description: 'List records from Airtable',
+        parameters: {
+            type: 'object',
+            properties: {
+                baseId: { type: 'string' },
+                tableIdOrName: { type: 'string' },
+                maxRecords: { type: 'number' },
+                view: { type: 'string' }
+            },
+            required: ['baseId', 'tableIdOrName']
+        }
     }
 ];
 
